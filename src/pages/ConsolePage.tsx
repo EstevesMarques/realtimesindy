@@ -761,7 +761,7 @@ export function ConsolePage() {
             <div
               className="content-block-body content-kv"
               dangerouslySetInnerHTML={{
-                __html: marked.parse(JSON.stringify(testJson)),
+                __html: marked.parse(JSON.stringify(userData)),
               } as React.HTMLProps<HTMLDivElement>["dangerouslySetInnerHTML"]}
             />
           </div>
