@@ -467,53 +467,273 @@ export function ConsolePage() {
           "phone"
         ]
       }
-    }, async ({ phone }: { [key: string]: any }) => {
-      const telformatado = formatPhoneNumber(phone);
-      const url = `https://api.superlogica.net/v2/condor/unidades/index?idCondominio=-1&exibirGruposDasUnidades=0&itensPorPagina=50&pagina=1&exibirDadosDosContatos=1&pesquisa=${telformatado}`;
+    },
+      async ({ phone }: { [key: string]: any }) => {
+        const telformatado = formatPhoneNumber(phone);
+        const url = `https://api.superlogica.net/v2/condor/unidades/index?` +
+          `idCondominio=-1&` +
+          `exibirGruposDasUnidades=0&` +
+          `itensPorPagina=50&` +
+          `pagina=1&` +
+          `exibirDadosDosContatos=1&` +
+          `pesquisa=${telformatado}`;
 
-      const headers = {
-        'app_token': '6e5ac688-a65e-4f4f-a974-f532a12959dd',
-        'access_token': 'e591a511-83c8-43eb-a7d2-71933d7fb6fd'
-      };
 
-      const result = await fetch(url, {
-        method: 'GET',
-        headers,
+        const headers = {
+          'app_token': '6e5ac688-a65e-4f4f-a974-f532a12959dd',
+          'access_token': 'e591a511-83c8-43eb-a7d2-71933d7fb6fd'
+        };
+
+        const result = await fetch(url, {
+          method: 'GET',
+          headers,
+        });
+
+        if (!result.ok) {
+          throw new Error(`Erro na requisição: ${result.status} ${result.statusText}`);
+        }
+
+        const json = await result.json();
+        console.log('Dados recebidos:', json);
+
+        let arrconds: any[] = [];
+        for (let item of json) {
+          let cond = {
+            nome_condominio: item.st_fantasia_cond,
+            cpf_proprietario: item.cpf_proprietario,
+            email_proprietario: item.email_proprietario,
+            unidade_apartamento: item.st_unidade_uni,
+            id_unidade: item.id_unidade_uni,
+            id_condominio: item.id_condominio_cond,
+            telefone: telformatado,
+          };
+          arrconds.push(cond);
+        }
+
+        // Atualizar o estado userData com os dados formatados
+        setuserData((prev) => ({
+          ...prev,
+          phone: arrconds,
+        }));
+
+        return {
+          data: arrconds,
+        };
       });
 
-      if (!result.ok) {
-        throw new Error(`Erro na requisição: ${result.status} ${result.statusText}`);
+    // GetPaymentLink - Pega a 2a via de boletos na Superlógica
+    client.addTool({
+      "name": "get_payment_link",
+      "description": "Busca os dados para solicitação de 2a via de boleto",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "Telefone informado pelo usuário"
+          },
+          "id_condominio": {
+            "type": "string",
+            "description": "Campo id_condominio que retornou do get_user_data"
+          },
+          "id_unidade": {
+            "type": "string",
+            "description": "Campo id_unidade que retornou do get_user_data"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "phone",
+          "id_condominio",
+          "id_unidade"
+        ]
       }
+    },
+      async ({ phone, id_condominio, id_unidade }: { [key: string]: any }) => {
+        const telformatado = formatPhoneNumber(phone);
+        const dtInicio = new Date(new Date().getFullYear(), new Date().getMonth() - 2, 5).toLocaleDateString('en-US');
+        const dtFim = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 5).toLocaleDateString('en-US');
+        const url = `https://api.superlogica.net/v2/condor/cobranca/index?` +
+          `status=validos&` +
+          `apenasColunasPrincipais=1&` +
+          `exibirPgtoComDiferenca=1&` +
+          `comContatosDaUnidade=1&` +
+          `idCondominio=${id_condominio}&` +
+          `dtInicio=${dtInicio}&` +
+          `dtFim=${dtFim}&` +
+          `UNIDADES[0]=${id_unidade}`;
 
-      const json = await result.json();
-      console.log('Dados recebidos:', json);
-
-      let arrconds: any[] = [];
-      for (let item of json) {
-        let cond = {
-          nome_condominio: item.st_fantasia_cond,
-          cpf_proprietario: item.cpf_proprietario,
-          email_proprietario: item.email_proprietario,
-          unidade_apartamento: item.st_unidade_uni,
-          id_unidade: item.id_unidade_uni,
-          id_condominio: item.id_condominio_cond,
-          telefone: telformatado,
+        const headers = {
+          'app_token': '6e5ac688-a65e-4f4f-a974-f532a12959dd',
+          'access_token': 'e591a511-83c8-43eb-a7d2-71933d7fb6fd'
         };
-        arrconds.push(cond);
+
+        const result = await fetch(url, {
+          method: 'GET',
+          headers,
+        });
+
+        if (!result.ok) {
+          throw new Error(`Erro na requisição: ${result.status} ${result.statusText}`);
+        }
+
+        const json = await result.json();
+        console.log('Dados recebidos:', json);
+
+        let arrCobrancas: { [key: string]: any }[] = [];
+
+        for (let item of json) {
+          if (item.json.status !== undefined) {
+            let cobranca: { [key: string]: any } = {};
+
+            cobranca.data_boleto = item.json.dt_geracao_recb.replace(/\s\d{2}:\d{2}:\d{2}/, '').replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$2/$1/$3');
+            cobranca.vencimento = item.json.dt_vencimento_recb.replace(/\s\d{2}:\d{2}:\d{2}/, '').replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$2/$1/$3');
+            cobranca.valor = item.json.vl_emitido_recb;
+
+            if (item.json.nm_txjuros_cond !== "") {
+              cobranca.juros = item.json.nm_txjuros_cond;
+            }
+
+            if (item.json.nm_txmulta_cond !== "") {
+              cobranca.multa = item.json.nm_txmulta_cond;
+            }
+
+            if (item.json.fl_status_recb !== "") {
+              cobranca.status = item.json.fl_status_recb === "3" ? "Pago" : "Pendente";
+            }
+
+            cobranca.total = item.json.vl_total_recb;
+            cobranca.pix = item.json.st_pixqrcode_recb;
+            cobranca.link = item.json.link_segundavia;
+
+            arrCobrancas.push(cobranca);
+          }
+        }
+
+        return {
+          data: arrCobrancas,
+        };
+      });
+
+    // GetContacts - Lista os contatos da unidade na Superlógica
+    client.addTool({
+      "name": "get_contacts",
+      "description": "Busca os contatos cadastrados para a unidade do condomínio",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "Telefone informado pelo usuário"
+          },
+          "id_condominio": {
+            "type": "string",
+            "description": "Campo id_condominio que retornou do get_user_data"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "phone",
+          "id_condominio"
+        ]
       }
+    },
+      async ({ phone, id_condominio }: { [key: string]: any }) => {
+        const telformatado = formatPhoneNumber(phone);
+        const url = `https://api.superlogica.net/v2/condor/unidades/index?` +
+          `idCondominio=${id_condominio}&` +
+          `exibirGruposDasUnidades=0&` +
+          `itensPorPagina=50&` +
+          `pagina=1&` +
+          `exibirDadosDosContatos=1&` +
+          `pesquisa=${telformatado}`;
 
-      // Atualizar o estado userData com os dados formatados
-      setuserData((prev) => ({
-        ...prev,
-        phone: arrconds,
-      }));
 
-      return {
-        data: arrconds,
-      };
-    });
+        const headers = {
+          'app_token': '6e5ac688-a65e-4f4f-a974-f532a12959dd',
+          'access_token': 'e591a511-83c8-43eb-a7d2-71933d7fb6fd'
+        };
 
+        const result = await fetch(url, {
+          method: 'GET',
+          headers,
+        });
 
+        if (!result.ok) {
+          throw new Error(`Erro na requisição: ${result.status} ${result.statusText}`);
+        }
+
+        const json = await result.json();
+        console.log('Dados recebidos:', json);
+
+        let arrContatos: { [key: string]: any }[] = [];
+
+        for (const item of json.contatos) {
+          let contato: { [key: string]: any } = {};
+          contato.nome = item.st_nome_con;
+          contato.tipo = item.st_nometiporesp_tres;
+          contato.telefone = item.st_telefone_con ? item.st_telefone_con : item.st_fax_con ? item.st_fax_con : "";
+          contato.cpf = item.st_cpf_con;
+          arrContatos.push(contato);
+        }
+
+        return {
+          data: arrContatos,
+        };
+      });
+
+    // GetLLMBuilder - Chama a LLM e passa a pergunta do usuário
+    client.addTool({
+      "name": "get_llmbuilder",
+      "description": "Esta função invoca uma api externa",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "Telefone informado pelo usuário ou retornado da get_user_data"
+          },
+          "condomino": {
+            "type": "string",
+            "description": "Nome do condomínio retornado da get_user_data"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "phone",
+          "condomino"
+        ]
+      }
+    },
+      async () => {
+        return ""
+      });
+
+    // RequestAssistance - Set fluxo no baserow para tranbordo de atendimento
+    client.addTool({
+      "name": "requestAssistance",
+      "description": "Esta função solicita atendimento e não retornará nenhum dado.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string",
+            "description": "Telefone informado pelo usuário ou retornado da get_user_data"
+          }
+        },
+        "additionalProperties": false,
+        "required": [
+          "phone"
+        ]
+      }
+    },
+      async () => { 
+        return "" 
+      });
+
+    /**
+    * ******************************************************************************
+    */
 
     // handle realtime events from client + server for event logging
     client.on('realtime.event', (realtimeEvent: RealtimeEvent) => {
