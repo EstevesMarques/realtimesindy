@@ -126,7 +126,7 @@ export function ConsolePage() {
     lng: -122.418137,
   });
   const [marker, setMarker] = useState<Coordinates | null>(null);
-  const [userData, setuserData] = useState<{ [key: string]: any }>({});
+  const [userData, setuserData] = useState<string>('');
 
   /**
    * Utility for formatting the timing of logs
@@ -510,12 +510,6 @@ export function ConsolePage() {
           arrconds.push(cond);
         }
 
-        // Atualizar o estado userData com os dados formatados
-        setuserData((prev) => ({
-          ...prev,
-          phone: arrconds,
-        }));
-
         return {
           data: arrconds,
         };
@@ -727,8 +721,8 @@ export function ConsolePage() {
         ]
       }
     },
-      async () => { 
-        return "" 
+      async () => {
+        return ""
       });
 
     /**
@@ -781,10 +775,6 @@ export function ConsolePage() {
   }, []);
 
 
-  const testJson = { "phone": [{ "nome_condominio": "4D imobi", "cpf_proprietario": "83919163753", "email_proprietario": "robert@livingnet.com.br", "unidade_apartamento": "005", "id_unidade": "452", "id_condominio": "3", "telefone": "21974894586" }] };
-
-
-
   /**
    * Render the application
    */
@@ -833,6 +823,14 @@ export function ConsolePage() {
                     </div>
                     <div className={`speaker-content`}>
                       {/* tool response */}
+                      {conversationItem.type === 'function_call_output' &&
+                        conversationItem.formatted.tool?.name === 'get_user_data' &&
+                        (() => {
+                          const output = conversationItem.formatted.text || ''; // Garante que seja uma string
+                          console.log('Atualizando userData com:', output); // Exibe o valor no console
+                          setuserData(output); // Atualiza o estado
+                        })()
+                      }
                       {conversationItem.type === 'function_call_output' && (
                         <div>{conversationItem.formatted.output}</div>
                       )}
@@ -916,6 +914,11 @@ export function ConsolePage() {
               {realtimeEvents.map((realtimeEvent, i) => {
                 const count = realtimeEvent.count;
                 const event = { ...realtimeEvent.event };
+                if (event.type === 'response.audio_transcript.done'){
+                  if(event.transcript.includes('cadastro')){
+                      setuserData(event.transcript);
+                  }
+                }
                 if (event.type === 'input_audio_buffer.append') {
                   event.audio = `[trimmed: ${event.audio.length} bytes]`;
                 } else if (event.type === 'response.audio.delta') {
@@ -981,7 +984,7 @@ export function ConsolePage() {
             <div
               className="content-block-body content-kv"
               dangerouslySetInnerHTML={{
-                __html: marked.parse(JSON.stringify(userData)),
+                __html: marked.parse(userData),
               } as React.HTMLProps<HTMLDivElement>["dangerouslySetInnerHTML"]}
             />
           </div>
