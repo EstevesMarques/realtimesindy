@@ -775,6 +775,25 @@ export function ConsolePage() {
   }, []);
 
 
+  // Caso queira rodar a lógica de atualização dentro de efeitos, você pode fazer isso usando useEffect:
+  let call_id = '';
+  useEffect(() => {
+    items.forEach((conversationItem) => {
+      if(call_id.length > 0){
+        const output = conversationItem.formatted.transcript || ''; // Garante que seja uma string
+        console.log('Atualizando userData com:', output); // Exibe o valor no console
+        setuserData(output); // Atualiza o estado 
+        call_id = ''; 
+      }
+      
+      if (conversationItem.type === 'function_call' && conversationItem.formatted.tool?.name === 'get_user_data') {
+        call_id = conversationItem.call_id;
+      }
+    });
+  }, [items]);
+
+
+
   /**
    * Render the application
    */
