@@ -3,6 +3,11 @@
     "name": "Realtime Sindy",
     "icons": [
       {
+        "src": "images/icons/logo144.png",
+        "type": "image/png",
+        "sizes": "144x144"
+      },
+      {
         "src": "images/icons/logo192.png",
         "type": "image/png",
         "sizes": "192x192"
@@ -18,4 +23,3 @@
     "theme_color": "#000000",
     "background_color": "#ffffff"
   }
-  
