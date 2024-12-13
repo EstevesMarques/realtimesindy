@@ -589,7 +589,6 @@ export function Main() {
                     <span className="logo-text">Sindy</span>
                 </div>
                 <div className="remote-video">
-                    {/* <video ref={videoRef} autoPlay /> */}
                     {!isConnected && (<span className='disconected-text'>✨ Para iniciar sua chamada, clique em iniciar...</span>)}
                     {isConnected && !isVideoLoaded && (
                         <img src="/connecting.gif" alt="Carregando chamada..." className="loading-gif" />

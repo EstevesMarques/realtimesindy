@@ -1,6 +1,11 @@
 import { useRef } from 'react';
 
 export function useHeygen(apiKey: string, serverUrl: string) {
+
+    if (!apiKey || !serverUrl) {
+        throw new Error('Heygen -> Both apiKey and serverUrl are required.');
+    }
+
     const avatarID = '336b72634e644335ad40bd56462fc780';
     const voiceID = '613f8304431144918ed6a83d4b3e3196';
     const sessionInfoRef = useRef<any>(null);
