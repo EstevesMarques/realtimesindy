@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap');
+
+/* Layout geral */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #000;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.logo-container {
+  display: flex; 
+  align-items: center; 
+}
+
+.logo-image {
+  width: 90px;
+}
+
+.logo-text {
+  font-family: 'Comfortaa', Sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+  color: #7f338e;
+}
+
+.video-call-container {
+  width: 100%;
+  max-width: 420px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+
+.video-call-container span.living {
+  text-align: center;
+  background-color: #333333;
+  font-family: system-ui;
+  font-size: 12px;
+  color: #515050;
+  height: 20px;
+}
+
+/* Área de vídeo */
+.video-area {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #333;
+}
+
+
+.user-video {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 100px;
+  height: 150px;
+  background-color: #555;
+  color: white;
+  text-align: center;
+  line-height: 150px;
+  border-radius: 10px;
+}
+
+.remote-video {
+  width: 90%;
+  height: 60%;
+  //background-color: #222;
+  background-color: #1b1b1b;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 15px;
+  text-align: center;
+  overflow: hidden;
+  position: relative;
+  /* Para controle de elementos dentro da área */
+}
+
+.remote-video video {
+  position: absolute;
+  /* Faz o vídeo preencher a área sem alterar o fluxo */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Preenche toda a área, cortando partes se necessário */
+  z-index: 1;
+  /* Certifica-se de que o vídeo não sobrepõe outros elementos */
+}
+
+.remote-video img.loading-gif {
+  width: 250px;
+  /* Ajuste conforme necessário */
+  height: 250px;
+  /* Ajuste conforme necessário */
+  object-fit: contain;
+  position: absolute;
+}
+
+.remote-video span.disconected-text {
+  width: 250px;
+  /* Ajuste conforme necessário */
+  height: 250px;
+  /* Ajuste conforme necessário */
+  object-fit: contain;
+  position: absolute;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: #555;
+}
+
+/* Botões de ação */
+.action-buttons {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 20px;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.end-call-button {
+  background-color: red;
+}
+
+.mute-button {
+  background-color: gray;
+}
+
+.camera-button {
+  background-color: green;
+}
+
+.action-buttons button:hover {
+  opacity: 0.8;
+}

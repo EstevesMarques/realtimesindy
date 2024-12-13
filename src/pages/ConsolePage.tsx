@@ -22,29 +22,10 @@ import { WavRenderer } from '../utils/wav_renderer';
 import { X, Edit, Zap, ArrowUp, ArrowDown } from 'react-feather';
 import { Button } from '../components/button/Button';
 import { Toggle } from '../components/toggle/Toggle';
-import { Map } from '../components/Map';
 
 import './ConsolePage.scss';
-import { isJsxOpeningLikeElement } from 'typescript';
 
 import { marked } from 'marked';
-
-/**
- * Type for result from get_weather() function call
- */
-interface Coordinates {
-  lat: number;
-  lng: number;
-  location?: string;
-  temperature?: {
-    value: number;
-    units: string;
-  };
-  wind_speed?: {
-    value: number;
-    units: string;
-  };
-}
 
 /**
  * Type for all event logs
@@ -109,23 +90,14 @@ export function ConsolePage() {
    * All of our variables for displaying application state
    * - items are all conversation items (dialog)
    * - realtimeEvents are event logs, which can be expanded
-   * - memoryKv is for set_memory() function
-   * - coords, marker are for get_weather() function
    */
   const [items, setItems] = useState<ItemType[]>([]);
   const [realtimeEvents, setRealtimeEvents] = useState<RealtimeEvent[]>([]);
-  const [expandedEvents, setExpandedEvents] = useState<{
-    [key: string]: boolean;
-  }>({});
+  const [expandedEvents, setExpandedEvents] = useState<{ [key: string]: boolean; }>({});
   const [isConnected, setIsConnected] = useState(false);
   const [canPushToTalk, setCanPushToTalk] = useState(true);
   const [isRecording, setIsRecording] = useState(false);
-  const [memoryKv, setMemoryKv] = useState<{ [key: string]: any }>({});
-  const [coords, setCoords] = useState<Coordinates | null>({
-    lat: 37.775593,
-    lng: -122.418137,
-  });
-  const [marker, setMarker] = useState<Coordinates | null>(null);
+
   const [userData, setuserData] = useState<string>('');
 
   /**
@@ -204,12 +176,6 @@ export function ConsolePage() {
     setIsConnected(false);
     setRealtimeEvents([]);
     setItems([]);
-    // setMemoryKv({});
-    // setCoords({
-    //   lat: 37.775593,
-    //   lng: -122.418137,
-    // });
-    // setMarker(null);
 
     const client = clientRef.current;
     client.disconnect();
@@ -779,13 +745,13 @@ export function ConsolePage() {
   let call_id = '';
   useEffect(() => {
     items.forEach((conversationItem) => {
-      if(call_id.length > 0){
+      if (call_id.length > 0) {
         const output = conversationItem.formatted.transcript || ''; // Garante que seja uma string
         console.log('Atualizando userData com:', output); // Exibe o valor no console
         setuserData(output); // Atualiza o estado 
-        call_id = ''; 
+        call_id = '';
       }
-      
+
       if (conversationItem.type === 'function_call' && conversationItem.formatted.tool?.name === 'get_user_data') {
         call_id = conversationItem.call_id;
       }
@@ -933,9 +899,9 @@ export function ConsolePage() {
               {realtimeEvents.map((realtimeEvent, i) => {
                 const count = realtimeEvent.count;
                 const event = { ...realtimeEvent.event };
-                if (event.type === 'response.audio_transcript.done'){
-                  if(event.transcript.includes('cadastro')){
-                      setuserData(event.transcript);
+                if (event.type === 'response.audio_transcript.done') {
+                  if (event.transcript.includes('cadastro')) {
+                    setuserData(event.transcript);
                   }
                 }
                 if (event.type === 'input_audio_buffer.append') {

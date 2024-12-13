@@ -9,7 +9,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   iconPosition?: 'start' | 'end';
   iconColor?: 'red' | 'green' | 'grey';
   iconFill?: boolean;
-  buttonStyle?: 'regular' | 'action' | 'alert' | 'flush';
+  buttonStyle?: 'regular' | 'action' | 'alert' | 'flush' | 'green' | 'info';
+  iconOnly?: boolean;
 }
 
 export function Button({
@@ -19,8 +20,10 @@ export function Button({
   iconColor = void 0,
   iconFill = false,
   buttonStyle = 'regular',
+  iconOnly = false,
   ...rest
 }: ButtonProps) {
+  const isIconOnly = !label && !!icon;
   const StartIcon = iconPosition === 'start' ? icon : null;
   const EndIcon = iconPosition === 'end' ? icon : null;
   const classList = [];
@@ -30,18 +33,23 @@ export function Button({
   if (iconFill) {
     classList.push(`icon-fill`);
   }
+  if (iconOnly) {
+    classList.push('button-icon-only');
+  }
+
   classList.push(`button-style-${buttonStyle}`);
 
   return (
     <button data-component="Button" className={classList.join(' ')} {...rest}>
       {StartIcon && (
-        <span className="icon icon-start">
+        <span className="icon">
           <StartIcon />
         </span>
       )}
-      <span className="label">{label}</span>
+      {!iconOnly && label && <span className="label">{label}</span>}
+      {/* <span className="label">{label}</span> */}
       {EndIcon && (
-        <span className="icon icon-end">
+        <span className="icon">
           <EndIcon />
         </span>
       )}

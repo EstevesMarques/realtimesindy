@@ -19,6 +19,7 @@
   &.button-style-action {
     background-color: #101010;
     color: #ececf1;
+
     &:hover:not([disabled]) {
       background-color: #404040;
     }
@@ -27,13 +28,57 @@
   &.button-style-alert {
     background-color: #f00;
     color: #ececf1;
+
     &:hover:not([disabled]) {
       background-color: #f00;
     }
   }
 
+  &.button-style-info {
+    background-color: rgb(231 175 8);
+    color: #101010;
+    font-family: Arial, sans-serif;
+
+    &:hover:not([disabled]) {
+      background-color: rgb(231 175 8);
+      font-family: Arial, sans-serif;
+    }
+  }
+
+  &.button-style-green {
+    background-color: #009900;
+    color: #ececf1;
+
+    &:hover:not([disabled]) {
+      background-color: #009900;
+    }
+  }
+
   &.button-style-flush {
     background-color: rgba(255, 255, 255, 0);
+  }
+
+  &.button-icon-only {
+    width: 48px; 
+    height: 48px;
+    padding: 0; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    border-radius: 50%; 
+  
+    .icon {
+      margin: 0; 
+    }
+  
+    .label {
+      display: none; 
+    }
+  
+    svg {
+      width: 24px; 
+      height: 24px;
+    }
   }
 
   &[disabled] {
@@ -54,27 +99,33 @@
 
   .icon {
     display: flex;
+
     &.icon-start {
       margin-left: -8px;
     }
+
     &.icon-end {
       margin-right: -8px;
     }
+
     svg {
-      width: 16px;
-      height: 16px;
+      width: 20px;
+      height: 20px;
     }
   }
 
   &.icon-red .icon {
     color: #cc0000;
   }
+
   &.icon-green .icon {
     color: #009900;
   }
+
   &.icon-grey .icon {
     color: #909090;
   }
+
   &.icon-fill {
     svg {
       fill: currentColor;

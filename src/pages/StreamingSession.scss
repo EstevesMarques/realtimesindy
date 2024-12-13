@@ -1,0 +1,62 @@
+[data-component='StreamingSession'] {
+    .container {
+        background-color: #f3f4f6; // bg-gray-100
+        padding: 1.25rem; // p-5
+        font-family: sans-serif; // font-sans
+      }
+      
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.625rem; // gap-2.5
+        margin-bottom: 1.25rem; // mb-5
+      }
+      
+      input {
+        flex: 1;
+        min-width: 200px; // min-w-[200px]
+        padding: 0.5rem; // p-2
+        border: 1px solid #d1d5db; // border-gray-300
+        border-radius: 0.375rem; // rounded-md
+      }
+      
+      button {
+        padding: 0.5rem 1rem; // px-4 py-2
+        border-radius: 0.375rem; // rounded-md
+        color: #ffffff; // text-white
+        transition: background-color 0.2s; // transition-colors
+      
+        &.start {
+          background-color: #10b981; // bg-green-500
+          &:hover {
+            background-color: #059669; // hover:bg-green-600
+          }
+        }
+      
+        &.close {
+          background-color: #ef4444; // bg-red-500
+          &:hover {
+            background-color: #dc2626; // hover:bg-red-600
+          }
+        }
+      }
+      
+      .media-player {
+        width: 100%; // w-full
+        max-height: 400px; // max-h-[400px]
+        border-radius: 0.375rem; // rounded-lg
+        margin: 1.25rem 0; // my-5
+      }
+      
+      .status {
+        padding: 0.625rem; // p-2.5
+        background-color: #f9fafb; // bg-gray-50
+        border: 1px solid #d1d5db; // border-gray-300
+        border-radius: 0.375rem; // rounded-md
+        height: 100px; // h-[100px]
+        overflow-y: auto;
+        font-family: monospace; // font-mono
+        font-size: 0.875rem; // text-sm
+      }
+      
+}
