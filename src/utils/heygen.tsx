@@ -14,7 +14,7 @@ export function useHeygen(apiKey: string, serverUrl: string) {
 
     const heygenUpdateStatus = (message: string) => {
         const timestamp = new Date().toLocaleTimeString();
-        console.log(`[${timestamp}] ${message}`);
+        console.log(`[${timestamp}] Heygen-> ${message}`);
     };
 
     async function heygenStart() {
@@ -33,7 +33,7 @@ export function useHeygen(apiKey: string, serverUrl: string) {
             await heygenCloseSession();
         } catch (error) {
             const err = error as Error;
-            console.error('Error starting session:', err);
+            console.error('Error ending session:', err);
             heygenUpdateStatus(`Error: ${err.message}`);
         }
     }
@@ -55,38 +55,45 @@ export function useHeygen(apiKey: string, serverUrl: string) {
             });
 
             const data = await response.json();
-            sessionInfoRef.current = data.data;
+            if (data.data != undefined) {
+                sessionInfoRef.current = data.data;
 
-            const { sdp: serverSdp, ice_servers2: iceServers } = data.data;
-            const pc = new RTCPeerConnection({ iceServers });
+                const { sdp: serverSdp, ice_servers2: iceServers } = data.data;
+                const pc = new RTCPeerConnection({ iceServers });
 
-            pc.ontrack = (event) => {
-                if (event.track.kind === 'audio' || event.track.kind === 'video') {
-                    if (mediaElementRef.current) {
-                        const stream = event.streams[0];
+                pc.ontrack = (event) => {
+                    if (event.track.kind === 'audio' || event.track.kind === 'video') {
+                        if (mediaElementRef.current) {
+                            const stream = event.streams[0];
 
-                        // Log para depuração
-                        console.log("MediaStream recebida:", stream);
-                        console.log("Tracks:", stream.getTracks());
-                        console.log("Vídeo Tracks:", stream.getVideoTracks());
-                        console.log("Áudio Tracks:", stream.getAudioTracks());
+                            // Log para depuração
+                            console.log("MediaStream recebida:", stream);
+                            console.log("Tracks:", stream.getTracks());
+                            console.log("Vídeo Tracks:", stream.getVideoTracks());
+                            console.log("Áudio Tracks:", stream.getAudioTracks());
 
-                        mediaElementRef.current.srcObject = stream;
+                            mediaElementRef.current.srcObject = stream;
+                        }
+                        heygenUpdateStatus('Received media stream');
                     }
-                    heygenUpdateStatus('Received media stream');
-                }
-            };
+                };
 
-            await pc.setRemoteDescription(new RTCSessionDescription(serverSdp));
-            peerConnectionRef.current = pc;
-            heygenUpdateStatus('Session created successfully');
+                await pc.setRemoteDescription(new RTCSessionDescription(serverSdp));
+                peerConnectionRef.current = pc;
+                heygenUpdateStatus('Session created successfully');
+            }
+            else{
+                throw new Error(data.message);
+            }
+
         } catch (error: any) {
             heygenUpdateStatus(`Error creating session: ${error.message}`);
         }
     };
 
     const heygenStartStreamingSession = async () => {
-        if (!peerConnectionRef || !sessionInfoRef) return;
+        //if (!peerConnectionRef || !sessionInfoRef) return;
+        if (!peerConnectionRef.current || !sessionInfoRef.current) return;
 
         try {
             const localDescription = await peerConnectionRef.current!.createAnswer();
