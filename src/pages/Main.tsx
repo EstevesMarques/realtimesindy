@@ -522,6 +522,12 @@ export function Main() {
 
         // handle realtime events from client + server for event logging
         client.on('realtime.event', (realtimeEvent: RealtimeEvent) => {
+            if (realtimeEvent?.event.type == 'response.done') {
+                if (realtimeEvent?.event.response?.status == 'failed') {
+                    console.error(realtimeEvent?.event.response?.status_details?.error.message);
+                }
+            }
+
             setRealtimeEvents((realtimeEvents) => {
                 const lastEvent = realtimeEvents[realtimeEvents.length - 1];
                 if (lastEvent?.event.type === realtimeEvent.event.type) {
@@ -533,8 +539,11 @@ export function Main() {
                 }
             });
         });
-        client.on('error', (event: any) => console.error(event));
+        client.on('error', (event: any) => {
+            console.error(event)
+        });
         client.on('conversation.interrupted', async () => {
+            console.log('Mensagem interrompida...');
             // const trackSampleOffset = await wavStreamPlayer.interrupt();
             // if (trackSampleOffset?.trackId) {
             //     const { trackId, offset } = trackSampleOffset;
@@ -542,6 +551,7 @@ export function Main() {
             // }
         });
         client.on('conversation.updated', async ({ item, delta }: any) => {
+            console.log('Mensagem atualizada...');
             const items = client.conversation.getItems();
 
             if (item.status === 'completed' && item.formatted.audio?.length) {
