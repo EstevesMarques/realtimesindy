@@ -551,7 +551,7 @@ export function Main() {
             // }
         });
         client.on('conversation.updated', async ({ item, delta }: any) => {
-            console.log('Mensagem atualizada...');
+            //console.log('Mensagem atualizada...');
             const items = client.conversation.getItems();
 
             if (item.status === 'completed' && item.formatted.audio?.length) {
